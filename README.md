@@ -9,7 +9,7 @@
 ```
 .
 └── Go // Go相关demo
-    └── rpcdemo // Go rpc调用简单demo
-
+    ├── algorithm // Go相关算法demo
+    └── rpcdemo  // Go rpc调用简单demo
 ```
 
