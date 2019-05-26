@@ -149,3 +149,59 @@ func isPalindrome(s string) bool {
 func TestIsPalindrome() {
 	fmt.Println(isPalindrome("A man, a plan, a canal: Panama"))
 }
+
+func myAtoi(str string) int {
+	count := 0
+	flag := 1
+	start := -1
+	var result int
+	for _, letter := range str {
+		if letter == ' ' {
+			if start == -1 {
+				continue
+			} else {
+				break
+			}
+		} else {
+			start = 1
+			if letter == '-' {
+				if count == 0 {
+					count++
+					flag = -1
+					continue
+				} else {
+					return result
+				}
+			} else if letter == '+' {
+				if count == 0 {
+					count++
+					flag = 1
+					continue
+				} else {
+					return result
+				}
+			} else if letter < '0' || letter > '9' {
+				break
+			} else {
+				result = result * 10 + int(letter) - 48
+				if result > math.MaxInt32 {
+					if flag == -1 {
+						return math.MinInt32
+					}
+					return math.MaxInt32
+				}
+			}
+		}
+		
+	}
+	if flag == -1 {
+		result = -result
+	}
+
+	return result
+}
+
+func TestMyAtoi() {
+	b := "    -42"
+	fmt.Println(myAtoi(b))
+}
