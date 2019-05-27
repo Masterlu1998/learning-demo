@@ -1,6 +1,7 @@
 package stringfun
 
 import (
+	"strconv"
 	"strings"
 	"math"
 	"fmt"
@@ -151,57 +152,138 @@ func TestIsPalindrome() {
 }
 
 func myAtoi(str string) int {
-	count := 0
-	flag := 1
-	start := -1
-	var result int
-	for _, letter := range str {
-		if letter == ' ' {
-			if start == -1 {
-				continue
+	// 过滤开头的空格
+	startIndex := 0
+	calFlag := 1
+	for index, letter := range str {
+		if letter != ' ' {
+			isValidate := (letter >= '0' && letter <= '9') || letter == '+' || letter == '-'
+			if isValidate {
+				startIndex = index
+				if letter == '-' {
+					calFlag = -1
+					startIndex++
+				}
+				if letter == '+' {
+					calFlag = 1
+					startIndex++
+				}
+				break;
 			} else {
-				break
-			}
-		} else {
-			start = 1
-			if letter == '-' {
-				if count == 0 {
-					count++
-					flag = -1
-					continue
-				} else {
-					return result
-				}
-			} else if letter == '+' {
-				if count == 0 {
-					count++
-					flag = 1
-					continue
-				} else {
-					return result
-				}
-			} else if letter < '0' || letter > '9' {
-				break
-			} else {
-				result = result * 10 + int(letter) - 48
-				if result > math.MaxInt32 {
-					if flag == -1 {
-						return math.MinInt32
-					}
-					return math.MaxInt32
-				}
+				return 0
 			}
 		}
-		
-	}
-	if flag == -1 {
-		result = -result
 	}
 
+	// 开始转换
+	result := 0
+	for i := startIndex; i < len(str); i++ {
+		isValidate := (str[i] >= '0' && str[i] <= '9')
+		if isValidate {
+			if str[i] >= '0' && str[i] <= '9' {
+				result = result * 10 + int(str[i] - 48) * calFlag
+				// 边界检测
+				if result > math.MaxInt32 {
+					return math.MaxInt32
+				}
+	
+				if result < math.MinInt32 {
+					return math.MinInt32
+				}
+			} 
+		} else {
+			break
+		}
+	}
 	return result
 }
 
 func TestMyAtoi() {
-	b := "    -42"
+	b := "    0-1"
 	fmt.Println(myAtoi(b))
+}
+
+func strStr(haystack string, needle string) int {
+	if needle == "" {
+		return 0
+	}
+	outloop:
+	for i := 0; i < len(haystack) - len(needle) + 1; i++ {
+		if haystack[i] == needle[0] {
+			for j := 1; j < len(needle); j++ {
+				if haystack[i+j] != needle[j] {
+					continue outloop
+				}
+			}
+			return i
+		}
+	}
+	return -1
+}
+
+func TestStrStr() {
+	a := "hell"
+	b := "ll"
+	fmt.Println(strStr(a, b))
+}
+
+// 递归方法
+func countAndSay(n int) string {
+    if n == 1 {
+		return "1"
+	}
+
+	var result string
+	pre := countAndSay(n-1)
+	count := 1
+	preLetter := string(pre[0])
+	for i := 1; i < len(pre); i++ {
+		if string(pre[i]) == preLetter {
+			count++
+		} else {
+			result = result + strconv.Itoa(count) + preLetter
+			count = 1
+		}
+		preLetter = string(pre[i])
+	}
+	result = result + strconv.Itoa(count) + preLetter
+
+	return result
+}
+
+func TestCountAndSay() {
+	fmt.Println(countAndSay(6))
+}
+
+func minIndex(strs []string) int {
+	min := math.MaxInt64
+	for i := 0; i < len(strs); i++ {
+		if len(strs[i]) < min {
+			min = len(strs[i])
+		}
+	}
+	return min
+}
+
+func longestCommonPrefix(strs []string) string {
+	if len(strs) == 0 	{
+		return ""
+	}
+	minIndex := minIndex(strs)
+	result := ""
+	outloop:
+	for i := 0; i < minIndex; i++ {
+		common := strs[0][i]
+		for j := 1; j < len(strs); j++ {
+			if common != strs[j][i] {
+				break outloop
+			}
+		}
+		result += string(common)
+	}
+	return result
+}
+
+func TestLongestCommonPrefix() {
+	fmt.Println(longestCommonPrefix([]string{}))
 }
