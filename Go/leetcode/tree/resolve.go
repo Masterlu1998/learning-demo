@@ -3,7 +3,6 @@ package tree
 import (
 	"container/list"
 	"fmt"
-	"reflect"
 	"math"
 )
 
@@ -91,64 +90,71 @@ func IsValid(node *TreeNode, max, min int) bool {
 }
 
 func isSymmetric(root *TreeNode) bool {
-    if root == nil || (root.Left == nil && root.Right == nil) {
+    return _isSymmetric(root, root)
+}
+
+func _isSymmetric(node1 *TreeNode, node2 *TreeNode) bool {
+    if node1 == nil && node2 == nil {
         return true
-    }
-    
-    if root.Left == nil || root.Right == nil {
+    } else if node1 == nil || node2 == nil {
         return false
     }
-    // 置换右子树
-    switchTree(root.Right)
-    return middleFind(root.Left, root.Right)
     
+    return node1.Val == node2.Val && _isSymmetric(node1.Left, node2.Right) && _isSymmetric(node1.Right, node2.Left)
 }
 
-func switchTree(root *TreeNode) {
-    root.Left, root.Right = root.Right, root.Left
-    if root.Left != nil {
-        switchTree(root.Left)
+
+func levelOrder(root *TreeNode) [][]int {
+    if root == nil {
+        return [][]int{}
     }
     
-    if root.Right != nil {
-        switchTree(root.Right)
+    result := make([][]int, 0)
+    
+    // 创建队列
+    queue := make([]*TreeNode, 0)
+    queue = append(queue, root)
+    
+    // 初始化每行容量
+    levelSize := 1
+    levelResult := make([]int, 0)
+    
+    for len(queue) != 0 {
+        // 出队
+        node := queue[0]
+        queue = queue[1:]
+        levelResult = append(levelResult, node.Val)
+        
+        // 左右子节点入队
+        if node.Left != nil {
+            queue = append(queue, node.Left)
+        }
+        
+        if node.Right != nil {
+            queue = append(queue, node.Right)
+        }
+
+        levelSize--
+        
+        if levelSize == 0 {
+            // 一层遍历完
+            levelSize = len(queue)
+            result = append(result, levelResult)
+            levelResult = make([]int, 0)
+        }
     }
+    
+    return result
 }
 
-func middleFind(root1, root2 *TreeNode) bool {
-    
-    stack1 := make([]*TreeNode, 0)
-    stack2 := make([]*TreeNode, 0)
-    
-    node1 := root1
-    node2 := root2
-    
-    
-    for node1 != nil || node2 != nil || len(stack1) != 0 || len(stack2) != 0 {
-        for node1 != nil {
-            stack1 = append(stack1, node1)
-            node1 = node1.Left  
-        }
-        
-        for node2 != nil {
-            stack2 = append(stack2, node2)
-            node2 = node2.Left  
-        }
 
-        node1 = stack1[len(stack1) - 1]
-        stack1 = stack1[:len(stack1) - 1]
-        
-        node2 = stack2[len(stack2) - 1]
-        stack2 = stack2[:len(stack2) - 1]
-        
-        if !reflect.DeepEqual(node1, node2) || !reflect.DeepEqual(stack1, stack2) {
-            return false
-        }
-
-        node1 = node1.Right
-        node2 = node2.Right
-        
+func sortedArrayToBST(nums []int) *TreeNode {
+    if len(nums) == 0 {
+        return nil
     }
-    return true
-  
+    middle := (len(nums) - 1) / 2
+    node := &TreeNode{Val: nums[middle]}
+    node.Left = sortedArrayToBST(nums[:middle])
+    node.Right = sortedArrayToBST(nums[middle+1:])
+    return node
 }
